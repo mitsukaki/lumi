@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+/web/node_modules
+/web/dist
+/build
