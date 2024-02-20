@@ -8,7 +8,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	router.Static("/", "./web/dist")
+	router.Static("/", "./public")
 
 	router.POST("/upload", handler.UploadHandle)
 
