@@ -1,0 +1,11 @@
+# Ignore all files and directories starting with a dot
+.*
+
+# Ignore directories not needed in building the container
+/build/
+/docs/
+/tests/
+
+# Ignore built web assets
+/web/public
+/web/node_modules
