@@ -8,7 +8,7 @@ deps:
 
 # App build target
 app: deps lumi.go
-	$(GO) build $(GOFLAGS) -o build/lumi lumi.go
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o build/lumi lumi.go
 
 # web build target
 webui: web/*
