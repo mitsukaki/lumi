@@ -10,6 +10,7 @@ import {
 import Root from "./routes/root";
 import AlbumPage from "./routes/album_page";
 import ProfilePage from "./routes/profile_page";
+import AuthPage from "./routes/auth_page";
 import ErrorPage from "./error_page";
 
 const router = createBrowserRouter([
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     errorElement: <ErrorPage />,
+  },
+  {
+    path: "auth",
+    element: <AuthPage />
   },
   {
     path: "album/:user_id",
