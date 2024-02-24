@@ -31,8 +31,6 @@ func CreateDatabase(config *CouchDBConfig) *CouchDatabase {
 	if config.UseAuth {
 		fullToken := config.Username + ":" + config.Password
 		auth = base64.URLEncoding.EncodeToString([]byte(fullToken))
-		// print the auth string
-		fmt.Println(auth)
 	} else {
 		auth = ""
 	}
