@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type User struct {
+type UserData struct {
 	Username string  `json:"username"`
 	Profile  Photo   `json:"profile"`
 	Banner   Photo   `json:"banner"`
@@ -10,14 +10,12 @@ type User struct {
 }
 
 type DBUser struct {
-	ID  string `json:"_id"`
-	Rev string `json:"_rev"`
-
+	ID          string   `json:"_id"`
+	Rev         string   `json:"_rev"`
 	Email       string   `json:"email"`
 	Password    string   `json:"password"`
 	Permissions []string `json:"permissions"`
-
-	User
+	User        UserData `json:"user"`
 }
 
 type Album struct {

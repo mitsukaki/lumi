@@ -1,4 +1,4 @@
-package handler
+package api
 
 type StatusResponse struct {
 	Ok     bool   `json:"ok"`

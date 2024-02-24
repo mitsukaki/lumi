@@ -7,3 +7,7 @@ type CouchResponse struct {
 	Error  string `json:"error"`
 	Reason string `json:"reason"`
 }
+
+type CouchDatabaseRequest struct {
+	Database string `json:"db"`
+}	
