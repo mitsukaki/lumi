@@ -2,7 +2,6 @@ package db
 
 import (
 	"encoding/base64"
-	"fmt"
 	"strconv"
 )
 

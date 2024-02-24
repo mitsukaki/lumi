@@ -12,9 +12,9 @@ import (
 
 func (apiServer *APIServer) UserContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		photoId := chi.URLParam(r, "photoId")
+		userId := chi.URLParam(r, "userId")
 
-		doc, err := apiServer.UserTable.Get(photoId)
+		doc, err := apiServer.UserTable.Get(userId)
 		if err != nil {
 			http.Error(w, http.StatusText(404), 404)
 			apiServer.logger.Info("failed to get user", zap.Error(err))
@@ -29,7 +29,7 @@ func (apiServer *APIServer) UserContext(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user", dbUser.User)
+		ctx := context.WithValue(r.Context(), "user", &dbUser)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -9,8 +9,8 @@ import (
 func (apiServer *APIServer) GetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	user, ok := ctx.Value("user").(*models.UserData)
-	if !ok {	
+	user, ok := ctx.Value("user").(*models.DBUser)
+	if !ok {
 		JsonWriteError(w, r, StatusResponse{
 			Ok:     false,
 			Reason: "internal error",
@@ -19,5 +19,5 @@ func (apiServer *APIServer) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JsonWriteOk(w, r, user)
+	JsonWriteOk(w, r, user.User)
 }

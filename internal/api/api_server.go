@@ -73,32 +73,21 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 		r.Get("/ping", apiServer.Ping)
 
 		// user routes
-		r.Route("/user", func(user chi.Router) {
+		r.Route("/user/{userId}", func(user chi.Router) {
 			user.Use(apiServer.UserContext)
 
-			user.Get("/{userId}", apiServer.GetUser)
-			user.Put("/{userId}", apiServer.PutUser)
+			user.Get("/", apiServer.GetUser)
+			user.Post("/", apiServer.PostUser)
 		})
 
 		// album routes
-		r.Route("/album", func(album chi.Router) {
+		r.Route("/album/{albumId}", func(album chi.Router) {
+			album.Use(apiServer.AlbumContext)
+			
+			album.Get("/", apiServer.Unimplemented)
+			album.Put("/", apiServer.Unimplemented)
 			album.Post("/", apiServer.Unimplemented)
-
-			// photo routes
-			album.Route("/photos", func(photos chi.Router) {
-				photos.Get("/", apiServer.Unimplemented)
-				photos.Post("/", apiServer.Unimplemented)
-				photos.Delete("/", apiServer.Unimplemented)
-			})
-
-			// album manipulation routes
-			album.Route("/{albumId}", func(album chi.Router) {
-				album.Use(apiServer.AlbumContext)
-
-				album.Get("/", apiServer.Unimplemented)
-				album.Put("/", apiServer.Unimplemented)
-				album.Delete("/", apiServer.Unimplemented)
-			})
+			album.Delete("/", apiServer.Unimplemented)
 		})
 	})
 

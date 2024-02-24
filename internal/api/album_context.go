@@ -30,7 +30,7 @@ func (apiServer *APIServer) AlbumContext(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "album", album)
+		ctx := context.WithValue(r.Context(), "album", &album)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
