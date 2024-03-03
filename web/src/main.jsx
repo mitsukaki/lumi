@@ -12,6 +12,8 @@ import AlbumPage from "./routes/album_page";
 import ProfilePage from "./routes/profile_page";
 import AuthPage from "./routes/auth_page";
 import ErrorPage from "./error_page";
+import { AlbumPageLoader } from "./routes/album_page";
+import { ProfilePageLoader } from "./routes/profile_page";
 
 const router = createBrowserRouter([
   {
@@ -24,12 +26,14 @@ const router = createBrowserRouter([
         element: <AuthPage />
       },
       {
-        path: "album/:user_id",
+        path: "a/:album_id",
         element: <AlbumPage />,
+        loader: AlbumPageLoader,
       },
       {
-        path: "profile/:user_id",
+        path: "u/:user_id",
         element: <ProfilePage />,
+        loader: ProfilePageLoader,
       },
     ],
   },

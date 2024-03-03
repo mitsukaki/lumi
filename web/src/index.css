@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.backdrop {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: top;
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.35);
+}

@@ -37,6 +37,6 @@ type Album struct {
 }
 
 type Photo struct {
-	PhotoID string `json:"photo_id"`
-	Ratio   int    `json:"ratio"`
+	PhotoID string  `json:"photo_id"`
+	Ratio   float32 `json:"ratio"`
 }
