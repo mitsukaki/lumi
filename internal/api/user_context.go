@@ -29,6 +29,13 @@ func (apiServer *APIServer) UserContext(next http.Handler) http.Handler {
 			return
 		}
 
+		// check the response from the database
+		if dbUser.Error != "" {
+			http.Error(w, http.StatusText(404), 404)
+			apiServer.logger.Info("failed to get user", zap.Error(err))
+			return
+		}
+
 		ctx := context.WithValue(r.Context(), "user", &dbUser)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

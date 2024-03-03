@@ -6,10 +6,10 @@ import (
 	"github.com/mitsukaki/lumi/models"
 )
 
-func (apiServer *APIServer) GetUser(w http.ResponseWriter, r *http.Request) {
+func (apiServer *APIServer) GetAlbum(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	user, ok := ctx.Value("user").(*models.DBUser)
+	album, ok := ctx.Value("album").(*models.Album)
 	if !ok {
 		JsonWriteError(w, r, StatusResponse{
 			Ok:     false,
@@ -19,5 +19,5 @@ func (apiServer *APIServer) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JsonWriteOk(w, r, user.PublicData)
+	JsonWriteOk(w, r, album)
 }

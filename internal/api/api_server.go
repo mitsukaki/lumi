@@ -84,7 +84,7 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 		r.Route("/album/{albumId}", func(album chi.Router) {
 			album.Use(apiServer.AlbumContext)
 			
-			album.Get("/", apiServer.Unimplemented)
+			album.Get("/", apiServer.GetAlbum)
 			album.Put("/", apiServer.Unimplemented)
 			album.Post("/", apiServer.Unimplemented)
 			album.Delete("/", apiServer.Unimplemented)
