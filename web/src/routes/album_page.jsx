@@ -12,7 +12,10 @@ export default function AlbumPage() {
 
     return (
         <div class="h-full">
-            <Backdrop photo_id={album.cover_photo.photo_id}/>
+            <Backdrop
+                album_id={album._id}
+                photo_id={album.cover_photo.photo_id}
+            />
             <div class="container mx-auto pb-8 pt-16 text-white">
                 {/* <p class="mx-auto">{JSON.stringify(user)}</p> */}
                 <p class="text-center text-2xl text-current">{album.title}</p>
@@ -21,7 +24,7 @@ export default function AlbumPage() {
                 </p>
                 <p class="text-center text-base text-current">{"@" + user.username}</p>
             </div>
-            <PhotoGrid photos={album.photos} />
+            <PhotoGrid album={album} />
             <div class="text-white">
                 <p class="text-center text-base text-current pt-12 pb-8">
                     See more albums from <Link class="text-zinc-500" to={"/u/" + user.username}>{"@" + user.username}</Link>
@@ -47,10 +50,17 @@ export async function AlbumPageLoader({ params }) {
 }
 
 class Backdrop extends React.Component {
+    getAlbumPhoto(album_id, photo_id) {
+        return photoCDN + "albums/" + album_id + "/" + photo_id;
+    }
+
     render() {
         return (
             <div class="backdrop h-full absolute" style={{
-                backgroundImage: `url(${photoCDN + this.props.photo_id})`
+                backgroundImage: `url(${this.getAlbumPhoto(
+                    this.props.album_id,
+                    this.props.photo_id,
+                )})`
             }}>
                 <div class="backdrop-blur h-full">
                     {this.props.children}
@@ -61,20 +71,31 @@ class Backdrop extends React.Component {
 }
 
 class BufferedPhoto extends React.Component {
+    getAlbumPhoto(album_id, photo_id) {
+        return photoCDN + "albums/" + album_id + "/" + photo_id;
+    }
+
     render() {
         return (
-            <img class="aspect-auto rounded-lg mb-4" src={photoCDN + this.props.photo_id} />
+            <img class="aspect-auto rounded-lg mb-4" src={this.getAlbumPhoto(
+                this.props.album_id,
+                this.props.photo_id,
+            )} />
         );
     }
 }
 
 class PhotoGrid extends React.Component {
     render() {
+        let album_id = this.props.album._id;
         return (
             <div class="container mx-auto">
                 {
-                    this.props.photos.map(photo => (
-                        <BufferedPhoto photo_id={photo.photo_id} />
+                    this.props.album.photos.map(photo => (
+                        <BufferedPhoto
+                            album_id={album_id}
+                            photo_id={photo.photo_id}
+                        />
                     ))
                 }
             </div>

@@ -22,7 +22,7 @@ func (apiServer *APIServer) AlbumContext(next http.Handler) http.Handler {
 			return
 		}
 
-		var album models.Album
+		var album models.DBAlbum
 		err = json.Unmarshal(doc, &album)
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)

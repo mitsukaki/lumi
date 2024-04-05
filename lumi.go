@@ -26,7 +26,11 @@ func loadConfig() {
 	viper.SetDefault("db.port", 5984)
 	viper.SetDefault("db.username", "")
 	viper.SetDefault("db.password", "")
-	
+
+	viper.SetDefault("s3.bucket", "lumi")
+	viper.SetDefault("s3.region", "us-east-2")
+	viper.SetDefault("s3.endpoint", "3.us-east-2.amazonaws.com")
+
 	viper.SetDefault("http.port", 8080)
 
 	viper.SetDefault("static_dir", filepath.Join(binaryPath, "public"))

@@ -5,6 +5,10 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -18,13 +22,14 @@ type APIServer struct {
 	// router for the APIServer
 	r *chi.Mux
 
-	// database connection
-	db *db.CouchDatabase
+	// database connections
+	db  *db.CouchDatabase
+	svc *s3.S3
 
 	// tables
-	UserTable  *db.CouchTable
-	AlbumTable *db.CouchTable
-	PhotoTable *db.CouchTable
+	UserTable     *db.CouchTable
+	AlbumTable    *db.CouchTable
+	UsernameTable *db.CouchTable
 
 	// logger
 	logger *zap.Logger
@@ -60,10 +65,27 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 		return nil, err
 	}
 
-	apiServer.PhotoTable, err = apiServer.db.CreateTable("lumi_photo")
+	apiServer.UsernameTable, err = apiServer.db.CreateTable("lumi_uuid")
 	if err != nil {
 		return nil, err
 	}
+
+	// create amazon s3 client
+	sess, err := session.NewSession(&aws.Config{
+		Region:   aws.String(viper.GetString("s3.region")),
+		Endpoint: aws.String(viper.GetString("s3.endpoint")),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	creds := credentials.NewStaticCredentials(
+		viper.GetString("s3.access_key.id"),
+		viper.GetString("s3.access_key.secret"),
+		"",
+	)
+
+	apiServer.svc = s3.New(sess, &aws.Config{Credentials: creds})
 
 	// add middleware
 	r := apiServer.r
@@ -90,26 +112,32 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 
 			user.Get("/", apiServer.GetUser)
 			user.Post("/", apiServer.PostUser)
+			user.Put("/album", apiServer.PutAlbum)
 		})
 
 		// album routes
 		r.Route("/album/{albumId}", func(album chi.Router) {
 			album.Use(apiServer.AlbumContext)
 
+			album.Put("/", apiServer.UploadAlbum)
 			album.Get("/", apiServer.GetAlbum)
-			album.Put("/", apiServer.Unimplemented)
 			album.Post("/", apiServer.Unimplemented)
 			album.Delete("/", apiServer.Unimplemented)
 		})
 	})
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(config.StaticDir, "index.html"))
-	})
+	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	http.ServeFile(w, r, filepath.Join(config.StaticDir, "index.html"))
+	// })
 
 	// serve static content
-	fs := http.FileServer(http.Dir(config.StaticDir))
-	r.Handle("/*", fs)
+	fs := http.FileServer(http.Dir(filepath.Join(config.StaticDir, "assets")))
+	r.Handle("/assets/*", http.StripPrefix("/assets/", fs))
+
+	// redirect any other requests to index.html
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join(config.StaticDir, "index.html"))
+	})
 
 	// return the APIServer instance
 	return apiServer, nil

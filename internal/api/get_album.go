@@ -9,7 +9,7 @@ import (
 func (apiServer *APIServer) GetAlbum(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	album, ok := ctx.Value("album").(*models.Album)
+	album, ok := ctx.Value("album").(*models.DBAlbum)
 	if !ok {
 		JsonWriteError(w, r, StatusResponse{
 			Ok:     false,
@@ -19,5 +19,13 @@ func (apiServer *APIServer) GetAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JsonWriteOk(w, r, album)
+	JsonWriteOk(w, r, &models.Album{
+		AlbumID:      album.AlbumID,
+		AuthorUserID: album.AuthorUserID,
+		CoverPhoto:   album.CoverPhoto,
+		Date:         album.Date,
+		Description:  album.Description,
+		Title:        album.Title,
+		Photos:       album.Photos,
+	})
 }

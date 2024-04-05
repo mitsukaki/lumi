@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "auth",
-        element: <AuthPage />
+        element: <AuthPage />,
       },
       {
         path: "a/:album_id",
