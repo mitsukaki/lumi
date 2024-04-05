@@ -27,7 +27,7 @@ export default function AlbumPage() {
             <PhotoGrid album={album} />
             <div class="text-white">
                 <p class="text-center text-base text-current pt-12 pb-8">
-                    See more albums from <Link class="text-zinc-500" to={"/u/" + user.username}>{"@" + user.username}</Link>
+                    See more albums from <Link class="text-zinc-500" to={"/u/" + album.author_user_id }>{"@" + user.username}</Link>
                 </p>
             </div>
         </div>
@@ -57,11 +57,12 @@ class Backdrop extends React.Component {
     render() {
         return (
             <div class="backdrop h-full absolute" style={{
-                backgroundImage: `url(${this.getAlbumPhoto(
-                    this.props.album_id,
-                    this.props.photo_id,
-                )})`
-            }}>
+                backgroundImage: `url(
+                    ${this.getAlbumPhoto(
+                        this.props.album_id,
+                        this.props.photo_id,
+                    )})`
+                }}>
                 <div class="backdrop-blur h-full">
                     {this.props.children}
                 </div>
@@ -77,7 +78,7 @@ class BufferedPhoto extends React.Component {
 
     render() {
         return (
-            <img class="aspect-auto rounded-lg mb-4" src={this.getAlbumPhoto(
+            <img class={`aspect-auto rounded-lg mb-4`} src={this.getAlbumPhoto(
                 this.props.album_id,
                 this.props.photo_id,
             )} />
@@ -86,19 +87,51 @@ class BufferedPhoto extends React.Component {
 }
 
 class PhotoGrid extends React.Component {
+    cols(length) {
+        if (length <= 4) return length;
+
+        // special/ideal cases
+        else if (length == 8) return 4;
+
+        // general "catch-all" break points
+        else if (length % 2 == 0) return 2;
+        else if (length % 3 == 0) return 3;
+        else if (length % 5 == 0) return 5;
+
+        else return 4;
+    }
+
+    smallCols(length) {
+        let columnCount = this.cols(length);
+        return (columnCount >= 2) ? 2 : columnCount;
+    }
+
     render() {
         let album_id = this.props.album._id;
+
+        // sort the photos into arrays using their "row" property
+        let rows = [];
+        this.props.album.photos.forEach(photo => {
+            if (rows[photo.row] === undefined)
+                rows[photo.row] = [];
+            
+            rows[photo.row].push(photo);
+        });
+
         return (
-            <div class="container mx-auto">
-                {
-                    this.props.album.photos.map(photo => (
-                        <BufferedPhoto
-                            album_id={album_id}
-                            photo_id={photo.photo_id}
-                        />
-                    ))
-                }
-            </div>
+            <div class="container mx-auto"> {
+            rows.map((row, index) => (
+                <div class={`grid grid-cols-${this.smallCols(row.length)} md:grid-flow-col md:grid-cols-${this.cols(row.length) } gap-4`}> {
+                row.map((photo) => (
+                    <BufferedPhoto
+                        album_id={album_id}
+                        photo_id={photo.photo_id}
+                        key={photo.photo_id}
+                    />
+                ))
+                }</div>
+            ))
+            }</div>
         );
     }
 }

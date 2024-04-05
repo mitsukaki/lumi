@@ -26,11 +26,12 @@ func (apiServer *APIServer) UploadAlbum(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// limit the size of the request to be no more than 10MB
-	r.Body = http.MaxBytesReader(w, r.Body, 10*1024*1024)
+	// limit the size of the request to be no more than 35MB
+	sizeLimit := int64(35 * 1024 * 1024)
+	r.Body = http.MaxBytesReader(w, r.Body, sizeLimit)
 
 	// parse the multipart form
-	err := r.ParseMultipartForm(10 * 1024 * 1024)
+	err := r.ParseMultipartForm(sizeLimit)
 	if err != nil {
 		apiServer.logger.Error("failed to parse multipart form", zap.Error(err))
 		JsonWriteError(w, r, StatusResponse{
