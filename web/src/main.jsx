@@ -10,10 +10,13 @@ import "./index.css";
 import Root from "./routes/root";
 import AlbumPage from "./routes/album_page";
 import ProfilePage from "./routes/profile_page";
+import CreatePage from "./routes/create_page";
+import UploadPage from "./routes/upload_page";
 import AuthPage from "./routes/auth_page";
 import ErrorPage from "./error_page";
 import { AlbumPageLoader } from "./routes/album_page";
 import { ProfilePageLoader } from "./routes/profile_page";
+import { UploadPageLoader } from "./routes/upload_page";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +38,15 @@ const router = createBrowserRouter([
         element: <ProfilePage />,
         loader: ProfilePageLoader,
       },
+      {
+        path: "upload",
+        element: <CreatePage />,
+      },
+      {
+        path: "upload/:album_id",
+        element: <UploadPage />,
+        loader: UploadPageLoader,
+      }
     ],
   },
 ]);

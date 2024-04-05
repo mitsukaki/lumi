@@ -50,11 +50,11 @@ type DBAlbum struct {
 }
 
 type AlbumPutRequest struct {
-	Private     bool   `json:"private"`
 	CoverPhoto  Photo  `json:"cover_photo"`
 	Description string `json:"description"`
 	Date        string `json:"date"`
 	Title       string `json:"title"`
+	Private     bool   `json:"private"`
 }
 
 type Photo struct {

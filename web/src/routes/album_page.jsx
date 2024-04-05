@@ -121,7 +121,10 @@ class PhotoGrid extends React.Component {
         return (
             <div class="container mx-auto"> {
             rows.map((row, index) => (
-                <div class={`grid grid-cols-${this.smallCols(row.length)} md:grid-flow-col md:grid-cols-${this.cols(row.length) } gap-4`}> {
+                <div
+                    key={index}
+                    class={`grid grid-cols-${this.smallCols(row.length)} md:grid-flow-col md:grid-cols-${this.cols(row.length) } gap-4`}
+                > {
                 row.map((photo) => (
                     <BufferedPhoto
                         album_id={album_id}
