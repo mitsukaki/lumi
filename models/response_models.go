@@ -1,4 +1,4 @@
-package api
+package models
 
 type StatusResponse struct {
 	Ok     bool   `json:"ok"`

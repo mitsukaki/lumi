@@ -58,10 +58,11 @@ function createAlbum(e) {
     const unlisted = e.target.elements.unlisted.checked;
 
     // Create album
-    fetch(`${api}/user/${user_id}/album`, {
+    fetch(`${api}/album`, {
         method: "PUT",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + user_id
         },
         body: JSON.stringify({
             description: description,

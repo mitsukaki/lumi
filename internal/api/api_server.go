@@ -16,6 +16,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mitsukaki/lumi/internal/db"
+	"github.com/mitsukaki/lumi/internal/endpoints"
+	mid "github.com/mitsukaki/lumi/internal/middleware"
 )
 
 type APIServer struct {
@@ -91,8 +93,28 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 	r := apiServer.r
 	r.Use(middleware.Logger)
 
+	authMiddleware := mid.CreateAuthHandler(
+		logger,
+		apiServer.UserTable,
+	)
+
+	r.Use(authMiddleware.Middleware)
+
+	albumContext := mid.CreateAlbumContextHandler(
+		logger,
+		apiServer.AlbumTable,
+	)
+
+	// Create the endpoint handlers
+	handler := endpoints.CreateEndpointHandler(
+		logger,
+		apiServer.UserTable,
+		apiServer.AlbumTable,
+		apiServer.svc,
+	)
+
 	// API subroute
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(cors.Handler(cors.Options{
 			// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
 			AllowedOrigins: []string{"https://*", "http://*"},
@@ -104,31 +126,36 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 			MaxAge:           300, // Maximum value not ignored by any of major browsers
 		}))
 
-		r.Get("/ping", apiServer.Ping)
+		r.Get("/ping", handler.Ping)
 
-		// user routes
-		r.Route("/user/{userId}", func(user chi.Router) {
-			user.Use(apiServer.UserContext)
+		// user endpoints
+		r.Post("/users", handler.CreateUser)
+		r.Post("/users/login", handler.LoginUser)
+		r.Post("/users/logout", handler.LogoutUser)
 
-			user.Get("/", apiServer.GetUser)
-			user.Post("/", apiServer.PostUser)
-			user.Put("/album", apiServer.PutAlbum)
+		r.Route("/users/{userId}", func(user chi.Router) {
+			user.Get("/", handler.GetUser)
+			user.Put("/", handler.UpdateUser)
+			user.Delete("/", handler.DeleteUser)
+
+			user.Get("/albums", handler.GetUserAlbums)
+			user.Delete("/albums/{albumId}", handler.DeleteUserAlbum)
 		})
 
 		// album routes
-		r.Route("/album/{albumId}", func(album chi.Router) {
-			album.Use(apiServer.AlbumContext)
+		r.Post("/albums", handler.CreateAlbum)
 
-			album.Put("/", apiServer.UploadAlbum)
-			album.Get("/", apiServer.GetAlbum)
-			album.Post("/", apiServer.Unimplemented)
-			album.Delete("/", apiServer.Unimplemented)
+		r.Route("albums/{albumId}", func(album chi.Router) {
+			album.Use(albumContext.Middleware)
+
+			album.Get("/", handler.GetAlbum)
+			album.Put("/", handler.UpdateAlbum)
+			album.Delete("/", handler.Unimplemented)
+
+			album.Post("/photo", handler.UploadAlbumPhoto)
+			album.Delete("/photo", handler.DeleteAlbumPhoto)
 		})
 	})
-
-	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, filepath.Join(config.StaticDir, "index.html"))
-	// })
 
 	// serve static content
 	fs := http.FileServer(http.Dir(filepath.Join(config.StaticDir, "assets")))

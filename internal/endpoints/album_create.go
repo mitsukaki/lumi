@@ -1,4 +1,4 @@
-package api
+package endpoints
 
 import (
 	"encoding/json"
@@ -6,11 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mitsukaki/lumi/internal/db"
+	"github.com/mitsukaki/lumi/internal/net"
 	"github.com/mitsukaki/lumi/models"
 	"go.uber.org/zap"
 )
 
-func (apiServer *APIServer) PutAlbum(w http.ResponseWriter, r *http.Request) {
+func (ep *EndpointHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := ctx.Value("user").(*models.DBUser)
 
@@ -19,7 +20,7 @@ func (apiServer *APIServer) PutAlbum(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&albumReq)
 	if err != nil {
 		http.Error(w, http.StatusText(400), 400)
-		apiServer.logger.Info("failed to decode album", zap.Error(err))
+		ep.logger.Info("failed to decode album", zap.Error(err))
 		return
 	}
 
@@ -42,17 +43,17 @@ func (apiServer *APIServer) PutAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update the user in the database
-	if updateTable(user.ID, user.Rev, user, apiServer.UserTable, w, r, apiServer.logger) == false {
+	if updateTable(user.ID, user.Rev, user, ep.userTable, w, r, ep.logger) == false {
 		return
 	}
 
 	// put the album in the database
-	if insertIntoTable(albumId, album, apiServer.AlbumTable, w, r, apiServer.logger) == false {
+	if insertIntoTable(albumId, album, ep.albumTable, w, r, ep.logger) == false {
 		return
 	}
 
 	// return success & the album ID
-	JsonWrite(http.StatusOK, w, r, AlbumPutResponse{
+	net.JsonWrite(http.StatusOK, w, r, models.AlbumPutResponse{
 		Ok: true,
 		ID: albumId,
 	})
@@ -79,19 +80,21 @@ func updateTable(
 ) bool {
 	resp, err := table.PutExisting(id, rev, data)
 	if err != nil {
-		JsonWrite(http.StatusInternalServerError, w, r, StatusResponse{
+		net.JsonWrite(http.StatusInternalServerError, w, r, models.StatusResponse{
 			Ok:     false,
 			Reason: "Failed to update to table",
 		})
+
 		logger.Info("failed to update to table", zap.Error(err))
 		return false
 	}
 
 	if resp.Error != "" {
-		JsonWrite(http.StatusInternalServerError, w, r, StatusResponse{
+		net.JsonWrite(http.StatusInternalServerError, w, r, models.StatusResponse{
 			Ok:     false,
 			Reason: "Failed to update to table",
 		})
+
 		logger.Info("failed to update to table", zap.String("error", resp.Error), zap.String("reason", resp.Reason))
 		return false
 	}
@@ -119,19 +122,21 @@ func insertIntoTable(
 ) bool {
 	resp, err := table.PutNew(id, data)
 	if err != nil {
-		JsonWrite(http.StatusInternalServerError, w, r, StatusResponse{
+		net.JsonWrite(http.StatusInternalServerError, w, r, models.StatusResponse{
 			Ok:     false,
 			Reason: "Failed to insert to table",
 		})
+
 		logger.Info("failed to insert to table", zap.Error(err))
 		return false
 	}
 
 	if resp.Error != "" {
-		JsonWrite(http.StatusInternalServerError, w, r, StatusResponse{
+		net.JsonWrite(http.StatusInternalServerError, w, r, models.StatusResponse{
 			Ok:     false,
 			Reason: "Failed to insert to table",
 		})
+
 		logger.Info("failed to insert to table", zap.String("error", resp.Error), zap.String("reason", resp.Reason))
 		return false
 	}
