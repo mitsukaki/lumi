@@ -126,7 +126,7 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 			MaxAge:           300, // Maximum value not ignored by any of major browsers
 		}))
 
-		r.Get("/ping", handler.Ping)
+		r.Get("/ping", handler.Ping) // done
 
 		// user endpoints
 		r.Post("/users", handler.CreateUser)
@@ -145,7 +145,7 @@ func CreateAPIServer(config APIConfig) (*APIServer, error) {
 		// album routes
 		r.Post("/albums", handler.CreateAlbum)
 
-		r.Route("albums/{albumId}", func(album chi.Router) {
+		r.Route("/albums/{albumId}", func(album chi.Router) {
 			album.Use(albumContext.Middleware)
 
 			album.Get("/", handler.GetAlbum)
